@@ -11,19 +11,19 @@ class NN(nn.Module):
     def __init__(self) -> None:
         super().__init__()
         self.approximator = nn.Sequential(
-            nn.Linear(1, 10),
+            nn.Linear(1, 20),
             nn.ReLU(),
-            nn.Linear(10, 10),
-            nn.ReLU(),
-            nn.Linear(10, 10),
-            nn.ReLU(),
-            nn.Linear(10, 1)
+            nn.Linear(20, 20),
+            # nn.ReLU(),
+            nn.Tanh(),
+            nn.Linear(20, 1),
         )
     
     def forward(self, x):
         return self.approximator(x)
 
 x = np.linspace(0, 2 * np.pi, 100)
+# y = np.ones(x.shape)
 y = np.sin(x)
 x = torch.tensor(x, dtype=torch.float32).view(-1, 1)
 y = torch.tensor(y, dtype=torch.float32).view(-1, 1)
@@ -33,6 +33,12 @@ model = NN()
 opt = optim.Adam(model.parameters(), lr=1e-2)
 criterion = nn.MSELoss(reduction="mean")
 
+# layers = list(model.parameters())
+# len(layers)
+# layers[0].detach().numpy().reshape(-1,)
+# layers[1].detach().numpy().reshape(-1,)
+# layers[2].detach().numpy().reshape(-1,)
+# layers[3].detach().numpy().reshape(-1,)
 
 epochs = 200
 for epoch in range(epochs):
@@ -40,10 +46,10 @@ for epoch in range(epochs):
     predictions = []
     epoch_loss = 0
     model.train()
-    for radian, target in zip(x, y):
+    for x0, y0 in zip(x, y):
         opt.zero_grad()
-        output = model(radian)
-        loss = criterion(output, target)
+        output = model(x0)
+        loss = criterion(output, y0)
         loss.backward()
         opt.step()
 
