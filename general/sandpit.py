@@ -11,18 +11,22 @@ class NN(nn.Module):
     def __init__(self) -> None:
         super().__init__()
         self.approximator = nn.Sequential(
-            nn.Linear(1, 150),
+            nn.Linear(1, 10),
             nn.ReLU(),
-            nn.Linear(150, 1),
+            nn.Linear(10, 10),
+            nn.ReLU(),
+            nn.Linear(10, 10),
+            nn.ReLU(),
+            nn.Linear(10, 1)
         )
     
     def forward(self, x):
         return self.approximator(x)
 
-radians = np.linspace(0, 2 * np.pi, 100)
-sine_values = np.sin(radians)
-radians = torch.tensor(radians, dtype=torch.float32).view(-1, 1)
-sine_values = torch.tensor(sine_values, dtype=torch.float32).view(-1, 1)
+x = np.linspace(0, 2 * np.pi, 100)
+y = np.sin(x)
+x = torch.tensor(x, dtype=torch.float32).view(-1, 1)
+y = torch.tensor(y, dtype=torch.float32).view(-1, 1)
 
 avg_losses = []
 model = NN()
@@ -36,7 +40,7 @@ for epoch in range(epochs):
     predictions = []
     epoch_loss = 0
     model.train()
-    for radian, target in zip(radians, sine_values):
+    for radian, target in zip(x, y):
         opt.zero_grad()
         output = model(radian)
         loss = criterion(output, target)
@@ -46,13 +50,12 @@ for epoch in range(epochs):
         predictions.append(output.item())
         epoch_loss += loss.item()
 
-    avg_losses.append(epoch_loss / len(radians))
+    avg_losses.append(epoch_loss / len(x))
 
 plt.figure()
-plt.plot(radians, sine_values, label='true', linewidth=2)
-plt.plot(radians, predictions, label='pred', linewidth=1)
+plt.plot(x, y, label='true', linewidth=2)
+plt.plot(x, predictions, label='pred', linewidth=1)
 plt.legend()
 plt.show()
-
 
 
